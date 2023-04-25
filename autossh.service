@@ -3,15 +3,9 @@ Description=Remote tunnel through DigitalOcean droplet
 After=network.target
 
 [Service]
-User=guco
+User=cirrus
 Environment="AUTOSSH_GATETIME=0"
-# -p [PORT]
-# -l [user]
-# -M 0 --> no monitoring
-# -N Just open the connection and do nothing (not interactive)
-# LOCALPORT:IP_ON_EXAMPLE_COM:PORT_ON_EXAMPLE_COM
-# ExecStart=/usr/bin/autossh -M 0 -N -q -o "ServerAliveInterval 60" -o "ServerAliveCountMax 3" -p 22 -l autossh remote.example.com -L 7474:127.0.0.1:7474 -i /home/autossh/.ssh/id_rsa
-ExecStart=/usr/bin/autossh -N -R 161.35.73.10:10025:localhost:22 root@161.35.73.10
+ExecStart=/usr/bin/autossh -i ~/.ssh/cirrus -N -R 161.35.73.10:10030:localhost:22 root@161.35.73.10
 
 [Install]
 WantedBy=multi-user.target
