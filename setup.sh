@@ -73,14 +73,6 @@ do
 	fi
 done
 
-if [ ! -d "/home/$USERNAME/.ssh" ]
-then
-    echo ".ssh directory does not exist."
-else
-    sudo cp cirrus /home/$USERNAME/.ssh/
-    sudo cp cirrus.pub /home/$USERNAME/.ssh/
-fi
-
 PORT=$(http GET 161.35.73.10:8000/next | awk 'NR {print $0}') 
 
 if [ -z "$HOSTNAME" ]
@@ -113,7 +105,7 @@ then
     echo "After=network.target" >> autossh.service
     echo ""
     echo "[Service]" >> autossh.service
-    echo "User=root" >> autossh.service
+    echo "User=$USERNAME" >> autossh.service
     echo "Environment=\"AUTOSSH_GATETIME=0\"" >> autossh.service
     echo "ExecStart=/usr/bin/autossh -i /home/$USERNAME/.ssh/cirrus -N -R 161.35.73.10:$PORT:localhost:22 root@161.35.73.10" >> autossh.service
     echo "Restart=on-failure" >> autossh.service
@@ -123,7 +115,18 @@ then
     echo "WantedBy=multi-user.target" >> autossh.service
 fi
 
+if [ ! -d "/home/$USERNAME/.ssh" ]
+then
+    echo ".ssh directory does not exist."
+else
+    sudo cp cirrus /home/$USERNAME/.ssh/
+    sudo cp cirrus.pub /home/$USERNAME/.ssh/
+    sudo chown $USERNAME:$USERNAME /home/$USERNAME/.ssh/cirrus
+    sudo chown $USERNAME:$USERNAME /home/$USERNAME/.ssh/cirrus.pub
+    sudo chmod 600 /home/$USERNAME/.ssh/cirrus
+    sudo chmod 644 /home/$USERNAME/.ssh/cirrus.pub    
+fi
 sudo cp $PWD/autossh.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl start autossh
-sudo systemctl status autossh
+
