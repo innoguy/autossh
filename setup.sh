@@ -41,7 +41,6 @@ while true; do
 			print_help
 			exit
 			;;
-
 		-u|--user)
 			USERNAME="$2"
 			shift 2
@@ -65,7 +64,7 @@ while true; do
 done
 
 
-for i in httpie
+for i in httpie autossh
 do
     dpkg -s $i &> /dev/null
     if [ $? -ne 0 ]
@@ -82,10 +81,7 @@ else
     sudo cp cirrus.pub /home/$USERNAME/.ssh/
 fi
 
-if [ -z "$PORT" ]
-then
-    PORT=$(http GET 161.35.73.10:8000/next | awk 'NR {print $0}')
-fi 
+PORT=$(http GET 161.35.73.10:8000/next | awk 'NR {print $0}') 
 
 if [ -z "$HOSTNAME" ]
 then
@@ -119,7 +115,7 @@ then
     echo "[Service]" >> autossh.service
     echo "User=root" >> autossh.service
     echo "Environment=\"AUTOSSH_GATETIME=0\"" >> autossh.service
-    echo "ExecStart=/usr/bin/autossh -i $HOME/.ssh/cirrus -N -R 161.35.73.10:$PORT:localhost:22 root@161.35.73.10" >> autossh.service
+    echo "ExecStart=/usr/bin/autossh -i /home/$USERNAME/.ssh/cirrus -N -R 161.35.73.10:$PORT:localhost:22 root@161.35.73.10" >> autossh.service
     echo "Restart=on-failure" >> autossh.service
     echo "RestartSec=5s" >> autossh.service
     echo ""
