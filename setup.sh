@@ -15,7 +15,7 @@ if [ ${PIPESTATUS[0]} != 4 ]; then
     exit 1
 fi
 
-OPTS="h:u:n:p"
+OPTS="h:u:n:p:"
 LONGOPTS="help:,user:,name:,port:"
 print_help() {
 	cat <<EOF
@@ -73,13 +73,20 @@ do
 	fi
 done
 
-PORT=$(http GET 161.35.73.10:8000/next | awk 'NR {print $0}') 
+if [ -z "$PORT" ]
+then
+    PORT=$(http GET 161.35.73.10:8000/next | awk 'NR {print $0}') 
+fi
 
 if [ -z "$HOSTNAME" ]
 then
     HOSTNAME=$(hostname | sed -e 's/.local//g')
 fi
 
+if [ -z "$USERNAME" ]
+then
+    USERNAME="cirrus"
+fi
 
 echo "Port to be used  : "$PORT
 echo "Hostname         : "$HOSTNAME
@@ -96,7 +103,11 @@ while true; do
 
 RESULT=$(http POST 161.35.73.10:8000/controllers name=$HOSTNAME port=$PORT)
 
-echo $RESULT
+if [ $RESULT != "Controller added successfully." ]
+then
+    echo $RESULT
+    exit 1
+fi
 
 if [ ! -f "$PWD/autossh.service" ]
 then
@@ -128,5 +139,6 @@ else
 fi
 sudo cp $PWD/autossh.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl start autossh
-
+sudo systemctl enable autossh
+echo "Test credentials by trying to log into doplet using command ssh root@161.35.73.10" 
+echo "If successful, exit, then start service with command sudo systemctl start autossh"
