@@ -137,5 +137,5 @@ fi
 sudo cp $PWD/autossh.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable autossh
-echo "Test credentials by trying to log into doplet using command ssh root@161.35.73.10" 
-echo "If successful, exit, then start service with command sudo systemctl start autossh"
+sudo ssh -n root@161.35.73.10 
+sudo systemctl start autossh
