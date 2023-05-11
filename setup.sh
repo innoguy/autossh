@@ -101,10 +101,9 @@ while true; do
 
 RESULT=$(http POST 161.35.73.10:8000/controllers name=$HOSTNAME port=$PORT)
 
-if [ $RESULT != "Controller added successfully." ]
+if [[ $RESULT != "Controller added successfully." ]]
 then
     echo $RESULT
-    exit 1
 fi
 
 if [ ! -f "$PWD/autossh.service" ]
