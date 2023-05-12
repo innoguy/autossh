@@ -61,14 +61,13 @@ while true; do
 	esac
 done
 
-
-for i in ssh
+for i in autossh httpie
 do
     dpkg -s $i &> /dev/null
     if [ $? -ne 0 ]
-	then 
-	  echo "Please install $i using sudo apt install $i" 
-	fi
+    then 
+        echo "Please install $i using sudo apt install $i" 
+    fi
 done
 
 if [ -z "$PORT" ]
@@ -99,8 +98,8 @@ while true; do
         esac
     done
 
-# RESULT=$(http POST 161.35.73.10:8000/controllers name=$HOSTNAME port=$PORT)
-RESULT=$(curl -d '{"name":$HOSTNAME,"port":$PORT}' -H "Content-Type: multipart/form-data" -X POST http://161.35.73.10:8000/controllers )
+RESULT=$(http POST 161.35.73.10:8000/controllers name=$HOSTNAME port=$PORT)
+# RESULT=$(curl -d '{"name":$HOSTNAME,"port":$PORT}' -H "Content-Type: multipart/form-data" -X POST http://161.35.73.10:8000/controllers )
 
 if [[ $RESULT != "Controller added successfully." ]]
 then
