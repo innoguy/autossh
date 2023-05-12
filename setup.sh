@@ -62,7 +62,7 @@ while true; do
 done
 
 
-for i in httpie autossh
+for i in ssh
 do
     dpkg -s $i &> /dev/null
     if [ $? -ne 0 ]
@@ -73,7 +73,7 @@ done
 
 if [ -z "$PORT" ]
 then
-    PORT=$(http GET 161.35.73.10:8000/next | awk 'NR {print $0}') 
+    PORT=$(curl http://161.35.73.10:8000/next | awk 'NR {print $0}') 
 fi
 
 if [ -z "$HOSTNAME" ]
@@ -115,7 +115,7 @@ then
     echo "[Service]" >> autossh.service
     echo "User=$USERNAME" >> autossh.service
     echo "Environment=\"AUTOSSH_GATETIME=0\"" >> autossh.service
-    echo "ExecStart=/usr/bin/autossh -o "ServerAliveInterval 15" -o "ServerAliveCountMax 3" -o "ConnectTimeout 10" -o "ExitOnForwardFailure yes" -i /home/$USERNAME/.ssh/cirrus -N -R 161.35.73.10:$PORT:localhost:22 root@161.35.73.10" >> autossh.service
+    echo "ExecStart=/usr/bin/autossh -o "ServerAliveInterval=15" -o "ServerAliveCountMax=3" -o "ConnectTimeout=10" -o "ExitOnForwardFailure=yes" -i /home/$USERNAME/.ssh/cirrus -N -R 161.35.73.10:$PORT:localhost:22 root@161.35.73.10" >> autossh.service
     echo "Restart=always" >> autossh.service
     echo "RestartSec=5s" >> autossh.service
     echo ""
