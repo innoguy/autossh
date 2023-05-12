@@ -99,7 +99,8 @@ while true; do
         esac
     done
 
-RESULT=$(http POST 161.35.73.10:8000/controllers name=$HOSTNAME port=$PORT)
+# RESULT=$(http POST 161.35.73.10:8000/controllers name=$HOSTNAME port=$PORT)
+RESULT=$(curl -d '{"name":$HOSTNAME,"port":$PORT}' -H "Content-Type: multipart/form-data" -X POST http://161.35.73.10:8000/controllers )
 
 if [[ $RESULT != "Controller added successfully." ]]
 then
@@ -114,8 +115,9 @@ then
     echo ""
     echo "[Service]" >> autossh.service
     echo "User=$USERNAME" >> autossh.service
-    echo "Environment=\"AUTOSSH_GATETIME=0\"" >> autossh.service
-    echo "ExecStart=/usr/bin/autossh -o "ServerAliveInterval=15" -o "ServerAliveCountMax=3" -o "ConnectTimeout=10" -o "ExitOnForwardFailure=yes" -i /home/$USERNAME/.ssh/cirrus -N -R 161.35.73.10:$PORT:localhost:22 root@161.35.73.10" >> autossh.service
+    # echo "Environment=\"AUTOSSH_GATETIME=0\"" >> autossh.service
+    # echo "ExecStart=/usr/bin/autossh -o "ServerAliveInterval=15" -o "ServerAliveCountMax=3" -o "ConnectTimeout=10" -o "ExitOnForwardFailure=yes" -i /home/$USERNAME/.ssh/cirrus -N -R 161.35.73.10:$PORT:localhost:22 root@161.35.73.10" >> autossh.service
+    echo "ExecStart=/usr/bin/ssh -o "ServerAliveInterval=15" -o "ServerAliveCountMax=3" -o "ConnectTimeout=10" -o "ExitOnForwardFailure=yes" -i /home/$USERNAME/.ssh/cirrus -N -R 161.35.73.10:$PORT:localhost:22 root@161.35.73.10" >> autossh.service
     echo "Restart=always" >> autossh.service
     echo "RestartSec=5s" >> autossh.service
     echo ""
