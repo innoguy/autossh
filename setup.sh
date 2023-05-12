@@ -72,7 +72,7 @@ done
 
 if [ -z "$PORT" ]
 then
-    PORT=http GET 161.35.73.10:8000/next | awk 'NR {print $0}'
+    PORT=$(http GET 161.35.73.10:8000/next | awk 'NR {print $0}')
     # PORT=$(curl http://161.35.73.10:8000/next | awk 'NR {print $0}') 
 fi
 
