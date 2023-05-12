@@ -139,5 +139,5 @@ fi
 sudo cp $PWD/autossh.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable autossh
-sudo ssh -n root@161.35.73.10 
+sudo ssh -n -i /home/$USERNAME/.ssh/cirrus root@161.35.73.10 
 sudo systemctl start autossh
