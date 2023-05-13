@@ -1,0 +1,11 @@
+[Unit]
+Description=Remote tunnel through DigitalOcean droplet
+After=network.target
+[Service]
+User=guco
+Environment="AUTOSSH_GATETIME=0"
+ExecStart=/usr/bin/ssh -i /home/guco/.ssh/cirrus -N -R 161.35.73.10:10037:localhost:22 root@161.35.73.10
+Restart=always
+RestartSec=5s
+[Install]
+WantedBy=multi-user.target
