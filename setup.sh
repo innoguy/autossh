@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ "$EUID" -ne 0 ]
+if [ "$EUID" -eq 0 ]
 then
-    echo "Please run with sudo"
+    echo "Please do not run with sudo"
 	exit
 fi
 
@@ -61,19 +61,10 @@ while true; do
 	esac
 done
 
-
-for i in httpie autossh
-do
-    dpkg -s $i &> /dev/null
-    if [ $? -ne 0 ]
-	then 
-	  echo "Please install $i using sudo apt install $i" 
-	fi
-done
-
 if [ -z "$PORT" ]
 then
-    PORT=$(http GET 161.35.73.10:8000/next | awk 'NR {print $0}') 
+    PORT=$(curl -s http://161.35.73.10:8000/next | awk 'NR {print $0}')
+    # PORT=$(http GET 161.35.73.10:8000/next | awk 'NR {print $0}') 
 fi
 
 if [ -z "$HOSTNAME" ]
@@ -83,29 +74,27 @@ fi
 
 if [ -z "$USERNAME" ]
 then
-    USERNAME="cirrus"
+    USERNAME=$(whoami)
 fi
 
 echo "Port to be used  : "$PORT
 echo "Hostname         : "$HOSTNAME
 echo "Username         : "$USERNAME
 
-while true; do
-        read -p "Do you want to proceed with these values? " yn
-        case $yn in
-            [Yy]* ) break;;
-            [Nn]* ) exit;;
-            * ) echo "Please answer yes or no.";;
-        esac
-    done
+while true 
+do
+    read -p "Do you want to proceed with these values? " yn
+    case $yn in
+        [Yy]* ) break;;
+        [Nn]* ) exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
 
-RESULT=$(http POST 161.35.73.10:8000/controllers name=$HOSTNAME port=$PORT)
+JSTRING="{\"name\":\""$HOSTNAME"\",\"port\":\""$PORT"\"}"
+RESULT=$(curl -s --json $JSTRING http://161.35.73.10:8000/controllers)
 
-if [ $RESULT != "Controller added successfully." ]
-then
-    echo $RESULT
-    exit 1
-fi
+echo $RESULT
 
 if [ ! -f "$PWD/autossh.service" ]
 then
@@ -116,8 +105,8 @@ then
     echo "[Service]" >> autossh.service
     echo "User=$USERNAME" >> autossh.service
     echo "Environment=\"AUTOSSH_GATETIME=0\"" >> autossh.service
-    echo "ExecStart=/usr/bin/autossh -i /home/$USERNAME/.ssh/cirrus -N -R 161.35.73.10:$PORT:localhost:22 root@161.35.73.10" >> autossh.service
-    echo "Restart=on-failure" >> autossh.service
+    echo "ExecStart=/usr/bin/ssh -i /home/$USERNAME/.ssh/cirrus -N -R 161.35.73.10:$PORT:localhost:22 root@161.35.73.10" >> autossh.service
+    echo "Restart=always" >> autossh.service
     echo "RestartSec=5s" >> autossh.service
     echo ""
     echo "[Install]" >> autossh.service
@@ -126,7 +115,7 @@ fi
 
 if [ ! -d "/home/$USERNAME/.ssh" ]
 then
-    echo ".ssh directory does not exist."
+    echo "/home/$USERNAME/.ssh directory does not exist."
 else
     sudo cp cirrus /home/$USERNAME/.ssh/
     sudo cp cirrus.pub /home/$USERNAME/.ssh/
@@ -138,5 +127,5 @@ fi
 sudo cp $PWD/autossh.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable autossh
-sudo ssh -n root@161.35.73.10 
+sudo ssh -i ~/.ssh/cirrus -n root@161.35.73.10 
 sudo systemctl start autossh
