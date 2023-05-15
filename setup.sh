@@ -64,7 +64,6 @@ done
 if [ -z "$PORT" ]
 then
     PORT=$(curl -s http://161.35.73.10:8000/next | awk 'NR {print $0}')
-    # PORT=$(http GET 161.35.73.10:8000/next | awk 'NR {print $0}') 
 fi
 
 if [ -z "$HOSTNAME" ]
@@ -92,7 +91,7 @@ do
 done
 
 JSTRING="{\"name\":\""$HOSTNAME"\",\"port\":\""$PORT"\"}"
-RESULT=$(curl -s --json $JSTRING http://161.35.73.10:8000/controllers)
+RESULT=$(curl -X POST -s -d $JSTRING http://161.35.73.10:8000/controllers)
 
 echo $RESULT
 
