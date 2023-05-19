@@ -5,8 +5,9 @@ This service allows to have an ssh session with a remote device deployed in the 
 To set up on the remote device:
 - copy the cirrus and cirrus.pub keys to ~/.ssh
 - sudo chmod 600 cirrus
-- sudo chmod 622 cirrus.pub
+- sudo chmod 644 cirrus.pub
 - sudo cp autossh.service /etc/systemd/system/autossh.service
+- sudo systemctl enable autossh
 - sudo systemctl start autossh
 - sudo systemctl status autossh
 
@@ -17,3 +18,17 @@ Login using own shell:
 Copy file /var/log/sensors.rrd to local machine  
 - scp -P 10030 -i ~/.ssh/cirrus cirrus@161.35.73.10:/var/log/sensors.rrd .
 (Notice capital -P for scp versus small -p for ssh)
+- scp -P 10029 -O -i ~/.ssh/cirrus root@161.35.73.10:/var/log/sensors.rrd .
+(On A1 controllers with Yocto and only root account)
+
+In addition to that, this repository also contains a small API server
+- developed using Python/Falcon/Gunicorn
+- it exposes 3 API's:
+	- controllers GET to get list of registered Cirrus controllers
+	- controllers POST to add a new controller
+	- next GET to get the next available port number for a new controller to be added
+	- others GET to get a list of other devices registered (not controllers)
+	- others POST to add a new device that is not a controller
+
+The controllers are used my MyRRDash, therefore non-controllers were moved out to a separate API
+  
