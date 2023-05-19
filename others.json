@@ -1,0 +1,14 @@
+[
+	{
+		"name"	:	"Intel NUC mobux",
+		"port"	:	"10024"
+	},
+	{
+		"name"	:	"SWZ board 7",
+		"port"	:	"10029"
+	},
+	{
+		"name"	:	"SWZ board 3",
+		"port"	:	"10035"
+	}
+]
